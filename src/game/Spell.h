@@ -291,6 +291,7 @@ class Spell
         void EffectJump(SpellEffectEntry const* effect);
         void EffectTeleUnitsFaceCaster(SpellEffectEntry const* effect);
         void EffectLearnSkill(SpellEffectEntry const* effect);
+        void EffectPlayMovie(SpellEffectEntry const* effect);
         void EffectTradeSkill(SpellEffectEntry const* effect);
         void EffectEnchantItemPerm(SpellEffectEntry const* effect);
         void EffectEnchantItemTmp(SpellEffectEntry const* effect);
@@ -375,6 +376,7 @@ class Spell
         void EffectSpecCount(SpellEffectEntry const* effect);
         void EffectActivateSpec(SpellEffectEntry const* effect);
         void EffectCancelAura(SpellEffectEntry const* effect);
+        void EffectRewardCurrency(SpellEffectEntry const* effect);
         void EffectKnockBackFromPosition(SpellEffectEntry const* effect);
         void EffectBuyGuildBankSlot(SpellEffectEntry const* effect);
 
