@@ -1922,6 +1922,8 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             // code for finish transfer to new map called in WorldSession::HandleMoveWorldportAckOpcode at client packet
             SetSemaphoreTeleportFar(true);
 
+            final.o = NormalizeOrientation(final.o);
+
             if (!GetSession()->PlayerLogout())
             {
                 // transfer finished, inform client to start load
