@@ -9078,6 +9078,23 @@ void ObjectMgr::LoadTrainers(char const* tableName, bool isTemplates)
         trainerSpell.isProvidedReqLevel = trainerSpell.reqLevel > 0;
 
         // calculate learned spell for profession case when stored cast-spell
+        trainerSpell.learnedSpell[0] = spell;
+        for(int i = 0; i < MAX_EFFECT_INDEX; ++i)
+        {
+            SpellEffectEntry const * effect = spellinfo->GetSpellEffect(SpellEffectIndex(i));
+            if (!effect || effect->Effect != SPELL_EFFECT_LEARN_SPELL)
+                continue;
+
+            if (trainerSpell.learnedSpell[0] == spell)
+                trainerSpell.learnedSpell[0] = 0;
+
+            trainerSpell.learnedSpell[i] = effect->EffectTriggerSpell;
+
+            if (SpellMgr::IsProfessionSpell(trainerSpell.learnedSpell[i]))
+                data.trainerType = 2;
+        }
+
+        /*
         trainerSpell.learnedSpell = spell;
         for (int i = 0; i < MAX_EFFECT_INDEX; ++i)
         {
@@ -9107,6 +9124,7 @@ void ObjectMgr::LoadTrainers(char const* tableName, bool isTemplates)
 
         // already checked as valid spell so exist.
         SpellEntry const* learnSpellinfo = sSpellStore.LookupEntry(trainerSpell.learnedSpell);
+
         if (SpellMgr::IsProfessionSpell(trainerSpell.learnedSpell))
         {
             data.trainerType = 2;
@@ -9133,7 +9151,7 @@ void ObjectMgr::LoadTrainers(char const* tableName, bool isTemplates)
             else
                 trainerSpell.reqLevel = learnSpellinfo->GetSpellLevel();
         }
-
+        */
         ++count;
     }
     while (result->NextRow());
