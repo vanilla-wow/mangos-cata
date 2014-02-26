@@ -77,6 +77,7 @@ void GuildFinderMgr::LoadGuildSettings()
 
     delete result;
 
+    sLog.outString();
     sLog.outString(">> Loaded %u guild finder guild-related settings.", count);
 }
 
@@ -120,6 +121,7 @@ void GuildFinderMgr::LoadMembershipRequests()
 
     delete result;
 
+    sLog.outString();
     sLog.outString(">> Loaded %u guild finder membership requests.", count);
 }
 
