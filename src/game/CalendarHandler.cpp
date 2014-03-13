@@ -78,6 +78,10 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recv_data*/)
         data << secsToTimeBitFields(event->EventTime);
         data << uint32(event->Flags);
         data << int32(event->DungeonId);
+
+        Guild* guild = sGuildMgr.GetGuildById(event->GuildId);
+        data << uint64(guild ? guild->GetObjectGuid() : 0);
+
         data << event->CreatorGuid.WriteAsPacked();
 
         std::string timeStr = TimeToTimestampStr(event->EventTime);
@@ -753,6 +757,10 @@ void CalendarMgr::SendCalendarEventInviteAlert(CalendarInvite const* invite)
     data << uint32(event->Type);
     data << int32(event->DungeonId);
     data << uint64(invite->InviteId);
+
+    Guild* guild = sGuildMgr.GetGuildById(event->GuildId);
+    data << uint64(guild ? guild->GetObjectGuid() : 0);
+
     data << uint8(invite->Status);
     data << uint8(invite->Rank);
     data << event->CreatorGuid.WriteAsPacked();
@@ -871,7 +879,9 @@ void CalendarMgr::SendCalendarEvent(Player* player, CalendarEvent const* event, 
     data << event->Flags;
     data << secsToTimeBitFields(event->EventTime);
     data << secsToTimeBitFields(event->UnknownTime);
-    data << event->GuildId;
+
+    Guild* guild = sGuildMgr.GetGuildById(event->GuildId);
+    data << uint64(guild ? guild->GetObjectGuid() : 0);
 
     CalendarInviteMap const* cInvMap = event->GetInviteMap();
     data << (uint32)cInvMap->size();
