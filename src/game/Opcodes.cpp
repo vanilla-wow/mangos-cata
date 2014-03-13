@@ -1430,4 +1430,14 @@ void InitializeOpcodes()
 	OPCODE(CMSG_OBJECT_UPDATE_FAILED,                    STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleObjectUpdateFailedOpcode  );
     OPCODE(CMSG_REFORGE_ITEM,                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleReforgeItemOpcode         );
     OPCODE(SMSG_REFORGE_RESULT,                          STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+    OPCODE(CMSG_VOID_STORAGE_QUERY,                      STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleVoidStorageQuery          );
+    OPCODE(CMSG_VOID_STORAGE_TRANSFER,                   STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleVoidStorageTransfer       );
+    OPCODE(CMSG_VOID_STORAGE_UNLOCK,                     STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleVoidStorageUnlock         );
+    OPCODE(CMSG_VOID_SWAP_ITEM,                          STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleVoidSwapItem              );
+    OPCODE(SMSG_VOID_ITEM_SWAP_RESPONSE,                 STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+    OPCODE(SMSG_VOID_STORAGE_CONTENTS,                   STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+    OPCODE(SMSG_VOID_STORAGE_FAILED,                     STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+    OPCODE(SMSG_VOID_STORAGE_TRANSFER_CHANGES,           STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+    OPCODE(SMSG_VOID_TRANSFER_RESULT,                    STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+
 };

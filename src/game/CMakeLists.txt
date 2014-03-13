@@ -414,6 +414,7 @@ set(SRC_GRP_WORLD_HANDLERS
     UpdateData.h
     VehicleHandler.cpp
     VoiceChatHandler.cpp
+    VoidStorageHandler.cpp
     WaypointManager.cpp
     WaypointManager.h
     Weather.cpp

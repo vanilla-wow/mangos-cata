@@ -393,6 +393,15 @@ class MANGOS_DLL_SPEC Item : public Object
         uint32 GetSpecialPrice(uint32 minimumPrice = 10000) const { return Item::GetSpecialPrice(GetProto(), minimumPrice); }
         int32 GetReforgableStat(ItemModType statType) const;
 
+        bool FitsToVoidStorage() const;
+
+        uint32 GetVisibleEntry() const
+        {
+            if (uint32 transmogrification = GetEnchantmentId(TRANSMOGRIFY_ENCHANTMENT_SLOT))
+                return transmogrification;
+            return GetEntry();
+        }
+
     private:
         std::string m_text;
         uint8 m_slot;

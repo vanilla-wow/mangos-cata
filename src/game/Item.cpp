@@ -1472,3 +1472,32 @@ int32 Item::GetReforgableStat(ItemModType statType) const
 
     return 0;
 }
+
+bool Item::FitsToVoidStorage() const
+{
+    ItemPrototype const* proto = GetProto();
+    if (!proto)
+        return false;
+
+    // stackable items
+    if (proto->Stackable > 1)
+        return false;
+
+    // not repaired items
+    if (GetUInt32Value(ITEM_FIELD_MAXDURABILITY) != GetUInt32Value(ITEM_FIELD_DURABILITY))
+        return false;
+
+    // not bound items
+    if (!IsSoulBound())
+        return false;
+
+    // unique items
+    if (proto->ItemLimitCategory)
+    {
+        if (ItemLimitCategoryEntry const* limitEntry = sItemLimitCategoryStore.LookupEntry(proto->ItemLimitCategory))
+            if (limitEntry->mode == ITEM_LIMIT_CATEGORY_MODE_HAVE)
+                return false;
+    }
+
+    return true;
+}

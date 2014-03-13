@@ -1448,6 +1448,15 @@ enum Opcodes
     CMSG_OBJECT_UPDATE_FAILED                             = 0x3808, // 4.3.4 15595
     CMSG_REFORGE_ITEM                                     = 0x331A, // 4.3.4 15595
     SMSG_REFORGE_RESULT                                   = 0x58A4, // 4.3.4 15595
+    CMSG_VOID_STORAGE_QUERY                               = 0x790A, // 4.3.4 15595
+    CMSG_VOID_STORAGE_TRANSFER                            = 0x380E, // 4.3.4 15595
+    CMSG_VOID_STORAGE_UNLOCK                              = 0x7B14, // 4.3.4 15595
+    CMSG_VOID_SWAP_ITEM                                   = 0x3204, // 4.3.4 15595
+    SMSG_VOID_ITEM_SWAP_RESPONSE                          = 0x78A2, // 4.3.4 15595
+    SMSG_VOID_STORAGE_CONTENTS                            = 0x75B4, // 4.3.4 15595
+    SMSG_VOID_STORAGE_FAILED                              = 0x18A7, // 4.3.4 15595
+    SMSG_VOID_STORAGE_TRANSFER_CHANGES                    = 0x51A6, // 4.3.4 15595
+    SMSG_VOID_TRANSFER_RESULT                             = 0x1DA6, // 4.3.4 15595
 };
 
 #define MAX_OPCODE_TABLE_SIZE 0xFFFF

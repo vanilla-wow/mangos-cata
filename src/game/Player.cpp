@@ -568,6 +568,8 @@ Player::Player(WorldSession* session): Unit(), m_mover(this), m_camera(this), m_
     for (uint8 i = 0; i < MAX_CUF_PROFILES; ++i)
         m_CUFProfiles[i] = NULL;
 
+    memset(m_voidStorageItems, NULL, VOID_STORAGE_MAX_SLOT * sizeof(VoidStorageItem*));
+
     m_maxPersonalRatedRating = 0;
 }
 
@@ -612,6 +614,9 @@ Player::~Player()
 
     for (uint8 i = 0; i < MAX_CUF_PROFILES; ++i)
         SaveCUFProfile(i, NULL);
+
+    for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
+        delete m_voidStorageItems[i];
 
     delete phaseMgr;
 }
@@ -4471,6 +4476,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             CharacterDatabase.PExecute("DELETE FROM guild_eventlog WHERE PlayerGuid1 = '%u' OR PlayerGuid2 = '%u'", lowguid, lowguid);
             CharacterDatabase.PExecute("DELETE FROM guild_bank_eventlog WHERE PlayerGuid = '%u'", lowguid);
             CharacterDatabase.PExecute("DELETE FROM character_currencies WHERE guid = '%u'", lowguid);
+            CharacterDatabase.PExecute("DELETE FROM character_void_storage WHERE playerGuid = '%u'", lowGuid);
             CharacterDatabase.CommitTransaction();
             break;
         }
@@ -15993,7 +15999,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder* holder)
     m_resetTalentsTime = time_t(fields[25].GetUInt64());
 
     // reserve some flags
-    uint32 old_safe_flags = GetUInt32Value(PLAYER_FLAGS) & (PLAYER_FLAGS_HIDE_CLOAK | PLAYER_FLAGS_HIDE_HELM);
+    uint32 old_safe_flags = GetUInt32Value(PLAYER_FLAGS) & (PLAYER_FLAGS_HIDE_CLOAK | PLAYER_FLAGS_HIDE_HELM | PLAYER_FLAGS_DEVELOPER | PLAYER_FLAGS_XP_USER_DISABLED | PLAYER_FLAGS_AUTO_DECLINE_GUILDS | PLAYER_FLAGS_VOID_STORAGE_UNLOCKED);
 
     if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GM))
         SetUInt32Value(PLAYER_FLAGS, 0 | old_safe_flags);
@@ -16048,22 +16054,6 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder* holder)
     // make sure the unit is considered not in duel for proper loading
     SetGuidValue(PLAYER_DUEL_ARBITER, ObjectGuid());
     SetUInt32Value(PLAYER_DUEL_TEAM, 0);
-
-    m_specsCount = fields[52].GetUInt8();
-    m_activeSpec = fields[53].GetUInt8();
-
-    Tokens talentTrees = StrSplit(fields[26].GetString(), " ");
-    for (uint8 i = 0; i < MAX_TALENT_SPEC_COUNT; ++i)
-    {
-        if (i >= talentTrees.size())
-            break;
-
-        uint32 talentTree = atol(talentTrees[i].c_str());
-        if (!talentTree || sTalentTabStore.LookupEntry(talentTree))
-            m_talentsPrimaryTree[i] = talentTree;
-        else if (i == m_activeSpec)
-            SetAtLoginFlag(AT_LOGIN_RESET_TALENTS); // invalid tree, reset talents
-    }
 
     // reset stats before loading any modifiers
     InitStatsForLevel();
@@ -16218,6 +16208,22 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder* holder)
     DEBUG_FILTER_LOG(LOG_FILTER_PLAYER_STATS, "The value of player %s after load item and aura is: ", m_name.c_str());
     outDebugStatsValues();
 
+    m_specsCount = fields[52].GetUInt8();
+    m_activeSpec = fields[53].GetUInt8();
+
+    Tokens talentTrees = StrSplit(fields[26].GetString(), " ");
+    for (uint8 i = 0; i < MAX_TALENT_SPEC_COUNT; ++i)
+    {
+        if (i >= talentTrees.size())
+            break;
+
+        uint32 talentTree = atol(talentTrees[i].c_str());
+        if (!talentTree || sTalentTabStore.LookupEntry(talentTree))
+            m_talentsPrimaryTree[i] = talentTree;
+        else if (i == m_activeSpec)
+            SetAtLoginFlag(AT_LOGIN_RESET_TALENTS); // invalid tree, reset talents
+    }
+
     // all fields read
     delete result;
 
@@ -16288,7 +16294,55 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder* holder)
 
     _LoadCUFProfiles(holder->GetResult(PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES));
 
+    _LoadVoidStorage(holder->GetResult(PLAYER_LOGIN_QUERY_LOAD_VOID_STORAGE));
+
     return true;
+}
+
+void Player::_LoadVoidStorage(QueryResult* result)
+{
+    if (!result)
+        return;
+
+    do
+    {
+        // SELECT itemid, itemEntry, slot, creatorGuid FROM character_void_storage WHERE playerGuid = %u
+        Field* fields = result->Fetch();
+
+        uint64 itemId = fields[0].GetUInt64();
+        uint32 itemEntry = fields[1].GetUInt32();
+        uint8 slot = fields[2].GetUInt8();
+        ObjectGuid creatorGuid = ObjectGuid(HIGHGUID_PLAYER, fields[3].GetUInt32());
+        uint32 randomProperty = fields[4].GetUInt32();
+        uint32 suffixFactor = fields[5].GetUInt32();
+
+        if (!itemId)
+        {
+            sLog.outError("Player::_LoadVoidStorage - %s has an item with an invalid id (item id: " UI64FMTD ", entry: %u).", GetGuidStr().c_str(), itemId, itemEntry);
+            continue;
+        }
+
+        if (!sObjectMgr.GetItemPrototype(itemEntry))
+        {
+            sLog.outError("Player::_LoadVoidStorage - %s has an item with an invalid entry (item id: " UI64FMTD ", entry: %u).", GetGuidStr().c_str(), itemId, itemEntry);
+            continue;
+        }
+
+        if (slot >= VOID_STORAGE_MAX_SLOT)
+        {
+            sLog.outError("Player::_LoadVoidStorage - %s has an item with an invalid slot (item id: " UI64FMTD ", entry: %u, slot: %u).", GetGuidStr().c_str(), itemId, itemEntry, slot);
+            continue;
+        }
+
+        if (!sAccountMgr.GetPlayerAccountIdByGUID(creatorGuid))
+        {
+            sLog.outError("Player::_LoadVoidStorage - %s has an item with an invalid creator guid, set to 0 (item id: " UI64FMTD ", entry: %u, creatorGuid: %u).", GetGuidStr().c_str(), itemId, itemEntry, creatorGuid.GetCounter());
+            creatorGuid = ObjectGuid();
+        }
+
+        m_voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, randomProperty, suffixFactor);
+    }
+    while (result->NextRow());
 }
 
 bool Player::isAllowedToLoot(Creature* creature)
@@ -17692,6 +17746,7 @@ void Player::SaveToDB()
     _SaveEquipmentSets();
     GetSession()->SaveTutorialsData();                      // changed only while character in game
     _SaveGlyphs();
+    _SaveVoidStorage();
     _SaveTalents();
 
     CharacterDatabase.CommitTransaction();
@@ -17995,6 +18050,34 @@ void Player::_SaveInventory()
         item->SaveToDB();                                   // item have unchanged inventory record and can be save standalone
     }
     m_itemUpdateQueue.clear();
+}
+
+void Player::_SaveVoidStorage()
+{
+    static SqlStatementID delVoidStorage;
+    static SqlStatementID insVoidStorage;
+
+    for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
+    {
+        SqlStatement stmt = CharacterDatabase.CreateStatement(delVoidStorage, "DELETE FROM character_void_storage WHERE slot = ? AND playerGuid = ?");
+        stmt.PExecute(i, GetObjectGuid().GetCounter());
+    }
+
+    for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
+    {
+        if (m_voidStorageItems[i])
+        {
+            SqlStatement stmt = CharacterDatabase.CreateStatement(insVoidStorage, "INSERT INTO character_void_storage (itemId, playerGuid, itemEntry, slot, creatorGuid, randomProperty, suffixFactor) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            stmt.addUInt64(m_voidStorageItems[i]->ItemId);
+            stmt.addUInt32(GetObjectGuid().GetCounter());
+            stmt.addUInt32(m_voidStorageItems[i]->ItemEntry);
+            stmt.addUInt8(i);
+            stmt.addUInt32(m_voidStorageItems[i]->CreatorGuid.GetCounter());
+            stmt.addUInt32(m_voidStorageItems[i]->ItemRandomPropertyId);
+            stmt.addUInt32(m_voidStorageItems[i]->ItemSuffixFactor);
+            stmt.Execute();
+        }
+    }
 }
 
 void Player::_SaveMail()
@@ -24407,9 +24490,9 @@ bool Player::FitArmorSpecializationRules(SpellEntry const * spellProto) const
 
     if (SpellEquippedItemsEntry const * itemsEntry = spellProto->GetSpellEquippedItems())
     {
-        // there spells check items with inventory types which are in EquippedItemInventoryTypeMask
+        // these spells check items with inventory types which are in EquippedItemInventoryTypeMask
         uint32 inventoryTypeMask = itemsEntry->EquippedItemInventoryTypeMask;
-        // get slots that should be check for item presence and SpellEquippedItemsEntry match
+        // get slots that should be checked for item presence and SpellEquippedItemsEntry match
         uint32 slotMask = 0;
         uint8 slots[4];
         for (int i = 0; i < MAX_INVTYPE; ++i)
@@ -24578,4 +24661,103 @@ void Player::_LoadRandomBGStatus(QueryResult *result)
         m_IsBGRandomWinner = true;
         delete result;
     }
+}
+uint8 Player::GetNextVoidStorageFreeSlot() const
+{
+    for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
+        if (!m_voidStorageItems[i]) // unused item
+            return i;
+
+    return VOID_STORAGE_MAX_SLOT;
+}
+
+uint8 Player::GetNumOfVoidStorageFreeSlots() const
+{
+    uint8 count = 0;
+
+    for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
+        if (!m_voidStorageItems[i])
+            ++count;
+
+    return count;
+}
+
+uint8 Player::AddVoidStorageItem(const VoidStorageItem& item)
+{
+    int8 slot = GetNextVoidStorageFreeSlot();
+
+    if (slot >= VOID_STORAGE_MAX_SLOT)
+    {
+        GetSession()->SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_FULL);
+        return 255;
+    }
+
+    m_voidStorageItems[slot] = new VoidStorageItem(item.ItemId, item.ItemEntry,
+        item.CreatorGuid, item.ItemRandomPropertyId, item.ItemSuffixFactor);
+    return slot;
+}
+
+void Player::AddVoidStorageItemAtSlot(uint8 slot, const VoidStorageItem& item)
+{
+    if (slot >= VOID_STORAGE_MAX_SLOT)
+    {
+        GetSession()->SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_FULL);
+        return;
+    }
+
+    if (m_voidStorageItems[slot])
+    {
+        sLog.outError("Player::AddVoidStorageItemAtSlot - Player %s tried to add an item to an used slot (item id: " UI64FMTD ", entry: %u, slot: %u).", GetGuidStr().c_str(), m_voidStorageItems[slot]->ItemId, m_voidStorageItems[slot]->ItemEntry, slot);
+        GetSession()->SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_INTERNAL_ERROR_1);
+        return;
+    }
+
+    m_voidStorageItems[slot] = new VoidStorageItem(item.ItemId, item.ItemId,
+        item.CreatorGuid, item.ItemRandomPropertyId, item.ItemSuffixFactor);
+}
+
+void Player::DeleteVoidStorageItem(uint8 slot)
+{
+    if (slot >= VOID_STORAGE_MAX_SLOT)
+    {
+        GetSession()->SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_INTERNAL_ERROR_1);
+        return;
+    }
+
+    delete m_voidStorageItems[slot];
+    m_voidStorageItems[slot] = NULL;
+}
+
+bool Player::SwapVoidStorageItem(uint8 oldSlot, uint8 newSlot)
+{
+    if (oldSlot >= VOID_STORAGE_MAX_SLOT || newSlot >= VOID_STORAGE_MAX_SLOT || oldSlot == newSlot)
+        return false;
+
+    std::swap(m_voidStorageItems[newSlot], m_voidStorageItems[oldSlot]);
+    return true;
+}
+
+VoidStorageItem* Player::GetVoidStorageItem(uint8 slot) const
+{
+    if (slot >= VOID_STORAGE_MAX_SLOT)
+    {
+        GetSession()->SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_INTERNAL_ERROR_1);
+        return NULL;
+    }
+
+    return m_voidStorageItems[slot];
+}
+
+VoidStorageItem* Player::GetVoidStorageItem(uint64 id, uint8& slot) const
+{
+    for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
+    {
+        if (m_voidStorageItems[i] && m_voidStorageItems[i]->ItemId == id)
+        {
+            slot = i;
+            return m_voidStorageItems[i];
+        }
+    }
+
+    return NULL;
 }

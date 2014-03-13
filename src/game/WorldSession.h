@@ -907,6 +907,13 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleObjectUpdateFailedOpcode(WorldPacket& recv_data);
         void HandeSetEveryoneIsAssistant(WorldPacket& recv_data);
 
+        // Void Storage
+        void SendVoidStorageTransferResult(VoidTransferError result);
+        void HandleVoidStorageUnlock(WorldPacket& recvData);
+        void HandleVoidStorageQuery(WorldPacket& recvData);
+        void HandleVoidStorageTransfer(WorldPacket& recvData);
+        void HandleVoidSwapItem(WorldPacket& recvData);
+
     private:
         // private trade methods
         void moveItems(Item* myItems[], Item* hisItems[]);
