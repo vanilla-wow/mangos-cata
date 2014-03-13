@@ -42,6 +42,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "GameEventMgr.h"
+#include "Formulas.h"
 
 #include "Policies/Singleton.h"
 
@@ -1481,7 +1482,7 @@ void BattleGroundMgr::BuildPvpLogDataPacket(WorldPacket* data, BattleGround* bg)
         else
             buffer << uint32(0);
 
-        switch (bg->GetTypeID())                            // battleground specific things
+        switch (bg->GetTypeID(true))                        // battleground specific things
         {
             case BATTLEGROUND_AV:
                 data->WriteBits(5, 24);                     // count of next fields
@@ -1743,6 +1744,22 @@ BattleGround* BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeId
         }
     }
 
+    bool isRandom = false;
+
+    if (bgTypeId == BATTLEGROUND_RB)
+    {
+        BattleGroundTypeId random_bgs[] = {BATTLEGROUND_AV, BATTLEGROUND_WS, BATTLEGROUND_AB, BATTLEGROUND_EY/*, BATTLEGROUND_SA, BATTLEGROUND_IC*/};
+        uint32 bg_num = urand(0, sizeof(random_bgs)/sizeof(BattleGroundTypeId)-1);
+        bgTypeId = random_bgs[bg_num];
+        bg_template = GetBattleGroundTemplate(bgTypeId);
+        if (!bg_template)
+        {
+            sLog.outError("BattleGround: CreateNewBattleGround - bg template not found for %u", bgTypeId);
+            return NULL;
+        }
+        isRandom = true;
+    }
+
     BattleGround* bg = NULL;
     // create a copy of the BG template
     switch (bgTypeId)
@@ -1797,7 +1814,7 @@ BattleGround* BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeId
     // will also set m_bgMap, instanceid
     sMapMgr.CreateBgMap(bg->GetMapId(), bg);
 
-    bg->SetClientInstanceID(CreateClientVisibleInstanceId(bgTypeId, bracketEntry->GetBracketId()));
+    bg->SetClientInstanceID(CreateClientVisibleInstanceId(isRandom ? BATTLEGROUND_RB : bgTypeId, bracketEntry->GetBracketId()));
 
     // reset the new bg (set status to status_wait_queue from status_none)
     bg->Reset();
@@ -1806,6 +1823,9 @@ BattleGround* BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeId
     bg->SetStatus(STATUS_WAIT_JOIN);
     bg->SetArenaType(arenaType);
     bg->SetRated(isRated);
+    bg->SetRandom(isRandom);
+    bg->SetTypeID(isRandom ? BATTLEGROUND_RB : bgTypeId);
+    bg->SetRandomTypeID(bgTypeId);
 
     return bg;
 }
@@ -1971,21 +1991,28 @@ void BattleGroundMgr::BuildBattleGroundListPacket(WorldPacket* data, ObjectGuid 
     if (!plr)
         return;
 
+    uint32 win_kills = plr->GetRandomWinner() ? BG_REWARD_WINNER_HONOR_LAST : BG_REWARD_WINNER_HONOR_FIRST;
+    uint32 win_arena = plr->GetRandomWinner() ? BG_REWARD_WINNER_CONQUEST_LAST : BG_REWARD_WINNER_CONQUEST_FIRST;
+    uint32 loos_kills = plr->GetRandomWinner() ? BG_REWARD_LOOSER_HONOR_LAST : BG_REWARD_LOOSER_HONOR_FIRST;
+
     BattleGround* bgTemplate = sBattleGroundMgr.GetBattleGroundTemplate(bgTypeId);
 
+    win_kills = (uint32)MaNGOS::Honor::hk_honor_at_level(plr->getLevel(), win_kills*4);
+    loos_kills = (uint32)MaNGOS::Honor::hk_honor_at_level(plr->getLevel(), loos_kills*4);
+
     data->Initialize(SMSG_BATTLEFIELD_LIST);
-    *data << uint32(0);                     // 4.3.4 winConquest weekend
-    *data << uint32(0);                     // 4.3.4 winConquest random
-    *data << uint32(0);                     // 4.3.4 lossHonor weekend
-    *data << uint32(bgTypeId);              // battleground id
-    *data << uint32(0);                     // 4.3.4 lossHonor random
-    *data << uint32(0);                     // 4.3.4 winHonor random
-    *data << uint32(0);                     // 4.3.4 winHonor weekend
-    *data << uint8(0);                      // max level
-    *data << uint8(0);                      // min level
+    *data << uint32(win_arena);                           // 4.3.4 winConquest weekend
+    *data << uint32(win_arena);                           // 4.3.4 winConquest random
+    *data << uint32(loos_kills);                          // 4.3.4 lossHonor weekend
+    *data << uint32(bgTypeId);                            // battleground id
+    *data << uint32(loos_kills);                          // 4.3.4 lossHonor random
+    *data << uint32(win_kills);                           // 4.3.4 winHonor random
+    *data << uint32(win_kills);                           // 4.3.4 winHonor weekend
+    *data << uint8(0);                                    // max level
+    *data << uint8(0);                                    // min level
     data->WriteGuidMask<0, 1, 7>(guid);
-    data->WriteBit(false);                  // has holiday bg currency bonus ??
-    data->WriteBit(false);                  // has random bg currency bonus ??
+    data->WriteBit(false);                                // has holiday bg currency bonus ??
+    data->WriteBit(false);                                // has random bg currency bonus ??
 
     uint32 count = 0;
     ByteBuffer buf;
@@ -2071,7 +2098,7 @@ BattleGroundQueueTypeId BattleGroundMgr::BGQueueTypeId(BattleGroundTypeId bgType
         case BATTLEGROUND_IC:
             return BATTLEGROUND_QUEUE_IC;
         case BATTLEGROUND_RB:
-            return BATTLEGROUND_QUEUE_NONE;
+            return BATTLEGROUND_QUEUE_RB;
         case BATTLEGROUND_TP:
             return BATTLEGROUND_QUEUE_TP;
         case BATTLEGROUND_BG:
@@ -2118,6 +2145,8 @@ BattleGroundTypeId BattleGroundMgr::BGTemplateId(BattleGroundQueueTypeId bgQueue
             return BATTLEGROUND_TP;
         case BATTLEGROUND_QUEUE_BG:
             return BATTLEGROUND_BG;
+        case BATTLEGROUND_QUEUE_RB:
+            return BATTLEGROUND_RB;
         case BATTLEGROUND_QUEUE_2v2:
         case BATTLEGROUND_QUEUE_3v3:
         case BATTLEGROUND_QUEUE_5v5:
