@@ -1422,9 +1422,10 @@ void InitializeOpcodes()
     OPCODE(SMSG_PVP_OPTIONS_ENABLED,                     STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     OPCODE(CMSG_REQUEST_HOTFIX,                          STATUS_AUTHED,   PROCESS_INPLACE,      &WorldSession::HandleRequestHotfix             );
     OPCODE(SMSG_DB_REPLY,                                STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-    OPCODE(CMSG_SAVE_CUF_PROFILES,                       STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleSaveCUFProfiles   );
-    OPCODE(SMSG_LOAD_CUF_PROFILES,                       STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide       );
-    OPCODE(SMSG_START_TIMER,                             STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide       );
-    OPCODE(SMSG_PLAY_ONE_SHOT_ANIM_KIT,                  STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide       );
+    OPCODE(CMSG_SAVE_CUF_PROFILES,                       STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleSaveCUFProfiles           );
+    OPCODE(SMSG_LOAD_CUF_PROFILES,                       STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+    OPCODE(SMSG_START_TIMER,                             STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+    OPCODE(SMSG_PLAY_ONE_SHOT_ANIM_KIT,                  STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     OPCODE(CMSG_SET_EVERYONE_IS_ASSISTANT,               STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandeSetEveryoneIsAssistant     );
+	OPCODE(CMSG_OBJECT_UPDATE_FAILED,                    STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleObjectUpdateFailedOpcode  );
 };
