@@ -436,6 +436,7 @@ class BattleGround
         void CastSpellOnTeam(uint32 SpellID, Team team);
         void RewardHonorToTeam(uint32 Honor, Team team);
         void RewardReputationToTeam(uint32 faction_id, uint32 Reputation, Team team);
+        void RewardXpToTeam(uint32 Xp, float percentOfLevel, Team TeamID);
         void RewardMark(Player* plr, uint32 count);
         void SendRewardMarkByMail(Player* plr, uint32 mark, uint32 count);
         void RewardItem(Player* plr, uint32 item_id, uint32 count);
