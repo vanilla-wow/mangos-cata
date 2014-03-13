@@ -1456,6 +1456,7 @@ enum Opcodes
     SMSG_VOID_STORAGE_FAILED                              = 0x18A7, // 4.3.4 15595
     SMSG_VOID_STORAGE_TRANSFER_CHANGES                    = 0x51A6, // 4.3.4 15595
     SMSG_VOID_TRANSFER_RESULT                             = 0x1DA6, // 4.3.4 15595
+    CMSG_TRANSMOGRIFY_ITEMS                               = 0x3B0E, // 4.3.4 15595
 };
 
 #define MAX_OPCODE_TABLE_SIZE 0xFFFF

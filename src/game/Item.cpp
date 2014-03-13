@@ -1501,3 +1501,105 @@ bool Item::FitsToVoidStorage() const
 
     return true;
 }
+
+bool Item::CanBeTransmogrified() const
+{
+    ItemPrototype const* proto = GetProto();
+
+    if (!proto)
+        return false;
+
+    if (proto->Quality == ITEM_QUALITY_LEGENDARY)
+        return false;
+
+    if (proto->Class != ITEM_CLASS_ARMOR &&
+        proto->Class != ITEM_CLASS_WEAPON)
+        return false;
+
+    if (proto->Class == ITEM_CLASS_WEAPON && proto->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
+        return false;
+
+    if (proto->Flags2 & ITEM_FLAG2_CANNOT_BE_TRANSMOG)
+        return false;
+
+    if (!HasStats())
+        return false;
+
+    return true;
+}
+
+bool Item::CanTransmogrify() const
+{
+    ItemPrototype const* proto = GetProto();
+
+    if (!proto)
+        return false;
+
+    if (proto->Flags2 & ITEM_FLAG2_CANNOT_TRANSMOG)
+        return false;
+
+    if (proto->Quality == ITEM_QUALITY_LEGENDARY)
+        return false;
+
+    if (proto->Class != ITEM_CLASS_ARMOR &&
+        proto->Class != ITEM_CLASS_WEAPON)
+        return false;
+
+    if (proto->Class == ITEM_CLASS_WEAPON && proto->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
+        return false;
+
+    if (proto->Flags2 & ITEM_FLAG2_CAN_TRANSMOG)
+        return true;
+
+    if (!HasStats())
+        return false;
+
+    return true;
+}
+
+bool Item::CanTransmogrifyItemWithItem(Item const* transmogrified, Item const* transmogrifier)
+{
+    if (!transmogrifier || !transmogrified)
+        return false;
+
+    ItemPrototype const* proto1 = transmogrifier->GetProto();   // source
+    ItemPrototype const* proto2 = transmogrified->GetProto();   // dest
+
+    if (proto1->ItemId == proto2->ItemId)
+        return false;
+
+    if (!transmogrified->CanTransmogrify() || !transmogrifier->CanBeTransmogrified())
+        return false;
+
+    if (proto1->InventoryType == INVTYPE_BAG ||
+        proto1->InventoryType == INVTYPE_RELIC ||
+        proto1->InventoryType == INVTYPE_BODY ||
+        proto1->InventoryType == INVTYPE_FINGER ||
+        proto1->InventoryType == INVTYPE_TRINKET ||
+        proto1->InventoryType == INVTYPE_AMMO ||
+        proto1->InventoryType == INVTYPE_QUIVER)
+        return false;
+
+    if (proto1->SubClass != proto2->SubClass && (proto1->Class != ITEM_CLASS_WEAPON || !proto2->IsRangedWeapon() || !proto1->IsRangedWeapon()))
+        return false;
+
+    if (proto1->InventoryType != proto2->InventoryType &&
+        (proto1->Class != ITEM_CLASS_WEAPON || (proto2->InventoryType != INVTYPE_WEAPONMAINHAND && proto2->InventoryType != INVTYPE_WEAPONOFFHAND)) &&
+        (proto1->Class != ITEM_CLASS_ARMOR || (proto1->InventoryType != INVTYPE_CHEST && proto2->InventoryType != INVTYPE_ROBE && proto1->InventoryType != INVTYPE_ROBE && proto2->InventoryType != INVTYPE_CHEST)))
+        return false;
+
+    return true;
+}
+
+bool Item::HasStats() const
+{
+    if (GetItemRandomPropertyId() != 0)
+        return true;
+
+    ItemPrototype const* proto = GetProto();
+    for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
+        if (proto->ItemStat[i].ItemStatValue != 0)
+            return true;
+
+    return false;
+}

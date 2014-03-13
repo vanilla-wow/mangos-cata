@@ -384,6 +384,7 @@ class MANGOS_DLL_SPEC Item : public Object
         bool HasInvolvedQuest(uint32 /*quest_id*/) const override { return false; }
         bool IsPotion() const { return GetProto()->IsPotion(); }
         bool IsConjuredConsumable() const { return GetProto()->IsConjuredConsumable(); }
+        bool IsRangedWeapon() const { return GetProto()->IsRangedWeapon(); }
 
         void AddToClientUpdateList() override;
         void RemoveFromClientUpdateList() override;
@@ -394,6 +395,11 @@ class MANGOS_DLL_SPEC Item : public Object
         int32 GetReforgableStat(ItemModType statType) const;
 
         bool FitsToVoidStorage() const;
+
+        bool CanBeTransmogrified() const;
+        bool CanTransmogrify() const;
+        static bool CanTransmogrifyItemWithItem(Item const* transmogrified, Item const* transmogrifier);
+        bool HasStats() const;
 
         uint32 GetVisibleEntry() const
         {

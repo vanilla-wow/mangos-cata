@@ -913,6 +913,9 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleVoidStorageTransfer(WorldPacket& recvData);
         void HandleVoidSwapItem(WorldPacket& recvData);
 
+        // Transmogrification
+        void HandleTransmogrifyItems(WorldPacket& recvData);
+
     private:
         // private trade methods
         void moveItems(Item* myItems[], Item* hisItems[]);
