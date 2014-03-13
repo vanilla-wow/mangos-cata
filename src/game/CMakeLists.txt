@@ -383,6 +383,8 @@ set(SRC_GRP_WORLD_HANDLERS
     Path.h
     PetHandler.cpp
     PetitionsHandler.cpp
+    PhaseMgr.cpp
+    PhaseMgr.h
     PoolManager.cpp
     PoolManager.h
     QueryHandler.cpp
