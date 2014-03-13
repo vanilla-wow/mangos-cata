@@ -220,6 +220,19 @@ class ByteBuffer
             return value;
         }
 
+        // Reads a byte (if needed) in-place
+        void ReadByteSeq(uint8& bytes)
+        {
+            if (bytes != 0)
+                bytes ^= read<uint8>();
+        }
+
+        void WriteByteSeq(uint8 bytes)
+        {
+            if (bytes != 0)
+                append<uint8>(bytes ^ 1);
+        }
+
         BitStream ReadBitStream(uint32 len)
         {
             BitStream b;
@@ -671,6 +684,13 @@ class ByteBuffer
             float f = 0;
             (*this) >> f;
             return f;
+        }
+
+        //! Method for writing strings that have their length sent separately in packet
+        //! without null-terminating the string
+        void WriteString(std::string const& str)
+        {
+            append(str.c_str(), str.length());
         }
 
         const uint8 *contents() const { return &_storage[0]; }
