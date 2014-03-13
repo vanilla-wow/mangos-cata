@@ -1423,4 +1423,5 @@ void InitializeOpcodes()
     OPCODE(SMSG_DB_REPLY,                                STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     OPCODE(CMSG_SAVE_CUF_PROFILES,                       STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleSaveCUFProfiles   );
     OPCODE(SMSG_LOAD_CUF_PROFILES,                       STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide       );
+    OPCODE(SMSG_START_TIMER,                             STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide       );
 };
