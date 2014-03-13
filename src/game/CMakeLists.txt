@@ -165,6 +165,9 @@ set(SRC_GRP_OBJECT
     GuardAI.h
     Guild.cpp
     Guild.h
+    GuildFinderHandler.cpp
+    GuildFinderMgr.cpp
+    GuildFinderMgr.h
     Item.cpp
     Item.h
     ItemEnchantmentMgr.cpp

@@ -295,7 +295,7 @@ class MANGOS_DLL_SPEC WorldSession
         /// Handle the authentication waiting queue (to be completed)
         void SendAuthWaitQue(uint32 position);
 
-        void SendNameQueryOpcode(Player* p);
+        void SendNameQueryOpcode(ObjectGuid guid);
         void SendNameQueryOpcodeFromDB(ObjectGuid guid);
         static void SendNameQueryOpcodeFromDBCallBack(QueryResult* result, uint32 accountId);
 
@@ -557,6 +557,7 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleOfferPetitionOpcode(WorldPacket& recv_data);
         void HandleTurnInPetitionOpcode(WorldPacket& recv_data);
 
+        // Guild
         void HandleGuildQueryOpcode(WorldPacket& recvPacket);
         void HandleGuildCreateOpcode(WorldPacket& recvPacket);
         void HandleGuildInviteOpcode(WorldPacket& recvPacket);
@@ -582,6 +583,16 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket);
         void HandleGuildQueryRanksOpcode(WorldPacket& recvPacket);
         void HandleGuildAutoDeclineToggleOpcode(WorldPacket& recvPacket);
+
+        // GuildFinder
+        void HandleGuildFinderAddRecruitOpcode(WorldPacket& recvPacket);
+        void HandleGuildFinderBrowseOpcode(WorldPacket& recvPacket);
+        void HandleGuildFinderDeclineRecruitOpcode(WorldPacket& recvPacket);
+        void HandleGuildFinderGetApplicationsOpcode(WorldPacket& recvPacket);
+        void HandleGuildFinderGetRecruitsOpcode(WorldPacket& recvPacket);
+        void HandleGuildFinderPostRequestOpcode(WorldPacket& recvPacket);
+        void HandleGuildFinderRemoveRecruitOpcode(WorldPacket& recvPacket);
+        void HandleGuildFinderSetGuildPostOpcode(WorldPacket& recvPacket);
 
         void HandleTaxiNodeStatusQueryOpcode(WorldPacket& recvPacket);
         void HandleTaxiQueryAvailableNodes(WorldPacket& recvPacket);

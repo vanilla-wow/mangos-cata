@@ -28,6 +28,7 @@
 #include "Player.h"
 #include "Guild.h"
 #include "GuildMgr.h"
+#include "GuildFinderMgr.h"
 #include "UpdateMask.h"
 #include "Auth/md5.h"
 #include "ObjectAccessor.h"
@@ -160,6 +161,9 @@ void WorldSession::HandleCharEnum(QueryResult * result)
                 sLog.outError("Building enum data for SMSG_CHAR_ENUM has failed, aborting");
                 return;
             }
+            // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
+            if (!sObjectMgr.HasCharacterNameData((*result)[0].GetUInt32()))
+                sObjectMgr.AddCharacterNameData((*result)[0].GetUInt32(), (*result)[1].GetString(), (*result)[4].GetUInt8(), (*result)[2].GetUInt8(), (*result)[3].GetUInt8(), (*result)[7].GetUInt8());
         }
         while (result->NextRow());
 
@@ -487,6 +491,8 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recv_data)
     BASIC_LOG("Account: %d (IP: %s) Create Character:[%s] (guid: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), pNewChar->GetGUIDLow());
     sLog.outChar("Account: %d (IP: %s) Create Character:[%s] (guid: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), pNewChar->GetGUIDLow());
 
+    sObjectMgr.AddCharacterNameData(pNewChar->GetGUIDLow(), std::string(pNewChar->GetName()), pNewChar->getGender(), pNewChar->getRace(), pNewChar->getClass(), pNewChar->getLevel());
+
     delete pNewChar;                                        // created only to call SaveToDB()
 }
 
@@ -539,6 +545,8 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recv_data)
     BASIC_LOG("Account: %d (IP: %s) Delete Character:[%s] (guid: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), lowguid);
     sLog.outChar("Account: %d (IP: %s) Delete Character:[%s] (guid: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), lowguid);
 
+    sObjectMgr.DeleteCharacterNameData(lowguid);
+
     if (sLog.IsOutCharDump())                               // optimize GetPlayerDump call
     {
         std::string dump = PlayerDumpWriter().GetDump(lowguid);
@@ -547,6 +555,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recv_data)
 
     sCalendarMgr.RemovePlayerCalendar(guid);
 
+    sGuildFinderMgr.RemoveAllMembershipRequestsFromPlayer(lowguid);
     Player::DeleteFromDB(guid, GetAccountId());
 
     WorldPacket data(SMSG_CHAR_DELETE, 1);
@@ -1012,6 +1021,8 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(QueryResult* result, uin
     data << guid;
     data << newname;
     session->SendPacket(&data);
+
+    sObjectMgr.UpdateCharacterNameData(guidLow, newname);
 }
 
 void WorldSession::HandleSetPlayerDeclinedNamesOpcode(WorldPacket& recv_data)
@@ -1255,6 +1266,8 @@ void WorldSession::HandleCharCustomizeOpcode(WorldPacket& recv_data)
 
     std::string IP_str = GetRemoteAddress();
     sLog.outChar("Account: %d (IP: %s), Character %s customized to: %s", GetAccountId(), IP_str.c_str(), guid.GetString().c_str(), newname.c_str());
+
+    sObjectMgr.UpdateCharacterNameData(guid.GetCounter(), newname, gender);
 
     WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1 + 8 + (newname.size() + 1) + 6);
     data << uint8(RESPONSE_SUCCESS);

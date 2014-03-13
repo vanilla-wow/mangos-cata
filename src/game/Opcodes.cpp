@@ -582,6 +582,13 @@ void InitializeOpcodes()
     //OPCODE(SMSG_RWHOIS,                                  STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //OPCODE(SMSG_LFG_PLAYER_REWARD,                       STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //OPCODE(SMSG_LFG_TELEPORT_DENIED,                     STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+    OPCODE(SMSG_LF_GUILD_APPLICANT_LIST_UPDATED,         STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+    OPCODE(SMSG_LF_GUILD_APPLICATIONS_LIST_CHANGED,      STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+    OPCODE(SMSG_LF_GUILD_BROWSE_UPDATED,                 STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+    OPCODE(SMSG_LF_GUILD_COMMAND_RESULT,                 STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+    OPCODE(SMSG_LF_GUILD_MEMBERSHIP_LIST_UPDATED,        STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+    OPCODE(SMSG_LF_GUILD_POST_UPDATED,                   STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+    OPCODE(SMSG_LF_GUILD_RECRUIT_LIST_UPDATED,           STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //OPCODE(CMSG_UNLEARN_SPELL,                           STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     OPCODE(CMSG_UNLEARN_SKILL,                           STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleUnlearnSkillOpcode        );
     OPCODE(SMSG_REMOVED_SPELL,                           STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
@@ -956,6 +963,14 @@ void InitializeOpcodes()
     //OPCODE(CMSG_LFG_TELEPORT,                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //OPCODE(CMSG_LFG_GET_PARTY_INFO,                      STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //OPCODE(SMSG_LFG_PARTY_INFO,                          STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+    OPCODE(CMSG_LF_GUILD_ADD_RECRUIT,                    STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderAddRecruitOpcode     );
+    OPCODE(CMSG_LF_GUILD_BROWSE,                         STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderBrowseOpcode         );
+    OPCODE(CMSG_LF_GUILD_DECLINE_RECRUIT,                STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderDeclineRecruitOpcode );
+    OPCODE(CMSG_LF_GUILD_GET_APPLICATIONS,               STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderGetApplicationsOpcode);
+    OPCODE(CMSG_LF_GUILD_GET_RECRUITS,                   STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderGetRecruitsOpcode    );
+    OPCODE(CMSG_LF_GUILD_POST_REQUEST,                   STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderPostRequestOpcode    );
+    OPCODE(CMSG_LF_GUILD_REMOVE_RECRUIT,                 STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderRemoveRecruitOpcode  );
+    OPCODE(CMSG_LF_GUILD_SET_GUILD_POST,                 STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderSetGuildPostOpcode   );
     OPCODE(SMSG_TITLE_EARNED,                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     OPCODE(CMSG_SET_TITLE,                               STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleSetTitleOpcode            );
     OPCODE(CMSG_CANCEL_MOUNT_AURA,                       STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleCancelMountAuraOpcode     );
