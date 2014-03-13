@@ -905,7 +905,6 @@ class MANGOS_DLL_SPEC WorldSession
         void SendReforgeResult(bool success);
 
         void HandleObjectUpdateFailedOpcode(WorldPacket& recv_data);
-        void HandeSetEveryoneIsAssistant(WorldPacket& recv_data);
 
         // Void Storage
         void SendVoidStorageTransferResult(VoidTransferError result);

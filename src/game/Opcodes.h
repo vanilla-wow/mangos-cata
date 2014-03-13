@@ -1444,7 +1444,6 @@ enum Opcodes
     SMSG_LOAD_CUF_PROFILES                                = 0x50B1, // 4.3.4 15595
     SMSG_START_TIMER                                      = 0x59A5, // 4.3.4 15595
     SMSG_PLAY_ONE_SHOT_ANIM_KIT                           = 0x4A35, // 4.3.4 15595
-    CMSG_SET_EVERYONE_IS_ASSISTANT                        = 0x2530, // 4.3.4 15595
     CMSG_OBJECT_UPDATE_FAILED                             = 0x3808, // 4.3.4 15595
     CMSG_REFORGE_ITEM                                     = 0x331A, // 4.3.4 15595
     SMSG_REFORGE_RESULT                                   = 0x58A4, // 4.3.4 15595
