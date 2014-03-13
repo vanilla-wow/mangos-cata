@@ -1444,6 +1444,7 @@ enum Opcodes
     SMSG_LOAD_CUF_PROFILES                                = 0x50B1, // 4.3.4 15595
     SMSG_START_TIMER                                      = 0x59A5, // 4.3.4 15595
     SMSG_PLAY_ONE_SHOT_ANIM_KIT                           = 0x4A35, // 4.3.4 15595
+    CMSG_SET_EVERYONE_IS_ASSISTANT                        = 0x2530, // 4.3.4 15595
 };
 
 #define MAX_OPCODE_TABLE_SIZE 0xFFFF

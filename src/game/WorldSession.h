@@ -900,6 +900,8 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleSaveCUFProfiles(WorldPacket& recv_data);
         void SendLoadCUFProfiles();
 
+        void HandeSetEveryoneIsAssistant(WorldPacket& recv_data);
+
     private:
         // private trade methods
         void moveItems(Item* myItems[], Item* hisItems[]);
