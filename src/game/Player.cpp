@@ -16058,6 +16058,22 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder* holder)
     SetGuidValue(PLAYER_DUEL_ARBITER, ObjectGuid());
     SetUInt32Value(PLAYER_DUEL_TEAM, 0);
 
+    m_specsCount = fields[52].GetUInt8();
+    m_activeSpec = fields[53].GetUInt8();
+
+    Tokens talentTrees = StrSplit(fields[26].GetString(), " ");
+    for (uint8 i = 0; i < MAX_TALENT_SPEC_COUNT; ++i)
+    {
+        if (i >= talentTrees.size())
+            break;
+
+        uint32 talentTree = atol(talentTrees[i].c_str());
+        if (!talentTree || sTalentTabStore.LookupEntry(talentTree))
+            m_talentsPrimaryTree[i] = talentTree;
+        else if (i == m_activeSpec)
+            SetAtLoginFlag(AT_LOGIN_RESET_TALENTS); // invalid tree, reset talents
+    }
+
     // reset stats before loading any modifiers
     InitStatsForLevel();
     InitGlyphsForLevel();
@@ -16210,22 +16226,6 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder* holder)
 
     DEBUG_FILTER_LOG(LOG_FILTER_PLAYER_STATS, "The value of player %s after load item and aura is: ", m_name.c_str());
     outDebugStatsValues();
-
-    m_specsCount = fields[52].GetUInt8();
-    m_activeSpec = fields[53].GetUInt8();
-
-    Tokens talentTrees = StrSplit(fields[26].GetString(), " ");
-    for (uint8 i = 0; i < MAX_TALENT_SPEC_COUNT; ++i)
-    {
-        if (i >= talentTrees.size())
-            break;
-
-        uint32 talentTree = atol(talentTrees[i].c_str());
-        if (!talentTree || sTalentTabStore.LookupEntry(talentTree))
-            m_talentsPrimaryTree[i] = talentTree;
-        else if (i == m_activeSpec)
-            SetAtLoginFlag(AT_LOGIN_RESET_TALENTS); // invalid tree, reset talents
-    }
 
     // all fields read
     delete result;
