@@ -1439,6 +1439,8 @@ enum Opcodes
     SMSG_PVP_OPTIONS_ENABLED                              = 0x50A1, // 4.3.4 15595
     CMSG_REQUEST_HOTFIX                                   = 0x2401, // 4.3.4 15595
     SMSG_DB_REPLY                                         = 0x38A4, // 4.3.4 15595
+    CMSG_SAVE_CUF_PROFILES                                = 0x730E, // 4.3.4 15595
+    SMSG_LOAD_CUF_PROFILES                                = 0x50B1, // 4.3.4 15595
 };
 
 #define MAX_OPCODE_TABLE_SIZE 0xFFFF

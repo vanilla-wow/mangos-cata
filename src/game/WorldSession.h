@@ -894,6 +894,11 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleQueryQuestsCompletedOpcode(WorldPacket& recv_data);
         void HandleQuestPOIQueryOpcode(WorldPacket& recv_data);
         void HandleSetCurrencyFlagsOpcode(WorldPacket& recv_data);
+
+        // Compact Unit Frames (4.x)
+        void HandleSaveCUFProfiles(WorldPacket& recv_data);
+        void SendLoadCUFProfiles();
+
     private:
         // private trade methods
         void moveItems(Item* myItems[], Item* hisItems[]);
