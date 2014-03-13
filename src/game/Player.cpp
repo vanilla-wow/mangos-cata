@@ -4476,7 +4476,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             CharacterDatabase.PExecute("DELETE FROM guild_eventlog WHERE PlayerGuid1 = '%u' OR PlayerGuid2 = '%u'", lowguid, lowguid);
             CharacterDatabase.PExecute("DELETE FROM guild_bank_eventlog WHERE PlayerGuid = '%u'", lowguid);
             CharacterDatabase.PExecute("DELETE FROM character_currencies WHERE guid = '%u'", lowguid);
-            CharacterDatabase.PExecute("DELETE FROM character_void_storage WHERE playerGuid = '%u'", lowGuid);
+            CharacterDatabase.PExecute("DELETE FROM character_void_storage WHERE playerGuid = '%u'", lowguid);
             CharacterDatabase.CommitTransaction();
             break;
         }
@@ -16334,7 +16334,7 @@ void Player::_LoadVoidStorage(QueryResult* result)
             continue;
         }
 
-        if (!sAccountMgr.GetPlayerAccountIdByGUID(creatorGuid))
+        if (!sObjectMgr.GetPlayerAccountIdByGUID(creatorGuid))
         {
             sLog.outError("Player::_LoadVoidStorage - %s has an item with an invalid creator guid, set to 0 (item id: " UI64FMTD ", entry: %u, creatorGuid: %u).", GetGuidStr().c_str(), itemId, itemEntry, creatorGuid.GetCounter());
             creatorGuid = ObjectGuid();

@@ -489,6 +489,7 @@
     <ClCompile Include="..\..\src\game\Vehicle.cpp" />
     <ClCompile Include="..\..\src\game\VehicleHandler.cpp" />
     <ClCompile Include="..\..\src\game\VoiceChatHandler.cpp" />
+    <ClCompile Include="..\..\src\game\VoidStorageHandler.cpp" />
     <ClCompile Include="..\..\src\game\WaypointManager.cpp" />
     <ClCompile Include="..\..\src\game\WaypointMovementGenerator.cpp" />
     <ClCompile Include="..\..\src\game\Weather.cpp" />

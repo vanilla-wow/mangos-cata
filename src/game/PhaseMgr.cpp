@@ -1,6 +1,5 @@
 /*
- * This file is part of the MaNGOS Project. See AUTHORS file for Copyright information
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

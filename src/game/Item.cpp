@@ -1465,7 +1465,7 @@ int32 Item::GetReforgableStat(ItemModType statType) const
             if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(GetEnchantmentId(EnchantmentSlot(e))))
                 for (uint32 f = 0; f < 3; ++f)
                     if (enchant->type[f] == ITEM_ENCHANTMENT_TYPE_STAT && enchant->spellid[f] == statType)
-                        for (int k = 0; k < 3; ++k)
+                        for (int k = 0; k < 5; ++k)
                             if (randomProp->enchant_id[k] == enchant->ID)
                                 return int32(enchant->amount[k]);
     }
