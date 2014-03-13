@@ -900,6 +900,10 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleSaveCUFProfiles(WorldPacket& recv_data);
         void SendLoadCUFProfiles();
 
+        // Reforge
+        void HandleReforgeItemOpcode(WorldPacket& recvData);
+        void SendReforgeResult(bool success);
+
         void HandleObjectUpdateFailedOpcode(WorldPacket& recv_data);
         void HandeSetEveryoneIsAssistant(WorldPacket& recv_data);
 
