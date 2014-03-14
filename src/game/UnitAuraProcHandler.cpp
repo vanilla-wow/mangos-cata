@@ -1405,21 +1405,21 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit* pVictim, uint32 damage, Aura
 
             switch (dummySpell->SpellIconID)
             {
-                    // Improved Shadowform
-                case 217:
+                // Divine Aegis
+                case 2820:
+                {
+                    basepoints[0] = damage * triggerAmount / 100;
+                    triggered_spell_id = 47753;
+                    break;
+                }
+                // Phantasm
+                case 2901:
                 {
                     if (!roll_chance_i(triggerAmount))
                         return SPELL_AURA_PROC_FAILED;
 
                     RemoveSpellsCausingAura(SPELL_AURA_MOD_ROOT);
                     RemoveSpellsCausingAura(SPELL_AURA_MOD_DECREASE_SPEED);
-                    break;
-                }
-                // Divine Aegis
-                case 2820:
-                {
-                    basepoints[0] = damage * triggerAmount / 100;
-                    triggered_spell_id = 47753;
                     break;
                 }
                 // Empowered Renew
