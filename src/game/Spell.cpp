@@ -2952,6 +2952,11 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                                 targetUnitMap.push_back(owner);
                     }
                     break;
+                // Fix wehn we have support for raid makers
+                // case SPELL_EFFECT_SUMMON_RAID_MARKER:
+                case SPELL_EFFECT_BUY_GUILD_BANKSLOT:
+                    targetUnitMap.push_back(m_caster);
+                    break;
                 default:
                     break;
             }
@@ -6045,7 +6050,31 @@ SpellCastResult Spell::CheckCast(bool strict)
                     return SPELL_FAILED_BAD_TARGETS;
                 break;
             }
-            default: break;
+            case SPELL_EFFECT_BUY_GUILD_BANKSLOT:
+            {
+                if (!m_caster || m_caster->GetTypeId() != TYPEID_PLAYER)
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                Player* player = (Player*)m_caster;
+
+                uint32 guildId = player->GetGuildId();
+                if (!guildId)
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                Guild* guild = sGuildMgr.GetGuildById(guildId);
+                if (!guild)
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                if (guild->GetLeaderGuid() != player->GetObjectGuid())
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                uint8 slot = uint8(spellEffect->CalculateSimpleValue() - 1);
+                if (slot != guild->GetPurchasedTabs())
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                break;
+            }
+            default:
+                break;
         }
     }
 
