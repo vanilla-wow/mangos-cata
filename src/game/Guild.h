@@ -536,8 +536,7 @@ class Guild
         uint64 GetGuildBankMoney() { return m_GuildBankMoney; }
         void   SetBankMoney(int64 money);
         void   HandleCashFlow(uint64 money, Player* player);
-        void SetThisWeekReputation(ObjectGuid playerGuid, uint32 amt);
-        void HandleCashFlow(uint64 money, Player* player);
+        void   SetThisWeekReputation(ObjectGuid playerGuid, uint32 amt);
         // per days
         bool   MemberItemWithdraw(uint8 TabId, uint32 LowGuid);
         uint32 GetMemberSlotWithdrawRem(uint32 LowGuid, uint8 TabId);

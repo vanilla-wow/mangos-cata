@@ -49,6 +49,8 @@
 #include "Vehicle.h"
 #include "TemporarySummon.h"
 #include "SQLStorages.h"
+#include "GuildMgr.h"
+#include "Guild.h"
 
 extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
 
