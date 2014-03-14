@@ -644,8 +644,8 @@ enum Opcodes
     CMSG_BATTLEFIELD_LIST                                 = 0x3814, // 4.3.4 15595
     SMSG_BATTLEFIELD_LIST                                 = 0x71B5, // 4.3.4 15595
     CMSG_BATTLEFIELD_JOIN                                 = 0x123F,
-    SMSG_FORCE_SET_VEHICLE_REC_ID                         = 0x1240,
-    CMSG_SET_VEHICLE_REC_ID_ACK                           = 0x1241,
+    SMSG_FORCE_SET_VEHICLE_REC_ID                         = 0x70A1, // 4.3.4 15595
+    CMSG_SET_VEHICLE_REC_ID_ACK                           = 0x3108, // 4.3.4 15595
     CMSG_TAXICLEARNODE                                    = 0x1242,
     CMSG_TAXIENABLENODE                                   = 0x1243,
     CMSG_ITEM_TEXT_QUERY                                  = 0x2406, // 4.3.4 15595
@@ -1212,7 +1212,7 @@ enum Opcodes
     SMSG_CRITERIA_UPDATE                                  = 0x6E37, // 4.3.4 15595
     CMSG_QUERY_INSPECT_ACHIEVEMENTS                       = 0x4D27, // 4.3.4 15595
     SMSG_RESPOND_INSPECT_ACHIEVEMENTS                     = 0x15B0, // 4.3.4 15595
-    CMSG_DISMISS_CONTROLLED_VEHICLE                       = 0x146E,
+    CMSG_DISMISS_CONTROLLED_VEHICLE                       = 0x3218, // 4.3.4 15595
     CMSG_COMPLETE_ACHIEVEMENT_CHEAT                       = 0x146F,
     SMSG_QUESTUPDATE_ADD_PVP_KILL                         = 0x4416, // 4.3.4 15595
     CMSG_SET_CRITERIA_CHEAT                               = 0x1471,
@@ -1221,10 +1221,10 @@ enum Opcodes
     CMSG_CHAR_CUSTOMIZE                                   = 0x2C34, // 4.3.4 15595
     SMSG_CHAR_CUSTOMIZE                                   = 0x4F16, // 4.3.4 15595
     SMSG_PET_RENAMEABLE                                   = 0x1476,
-    CMSG_REQUEST_VEHICLE_EXIT                             = 0x1477,
-    CMSG_REQUEST_VEHICLE_PREV_SEAT                        = 0x1478,
-    CMSG_REQUEST_VEHICLE_NEXT_SEAT                        = 0x1479,
-    CMSG_REQUEST_VEHICLE_SWITCH_SEAT                      = 0x147A,
+    CMSG_REQUEST_VEHICLE_EXIT                             = 0x2B35, // 4.3.4 15595
+    CMSG_REQUEST_VEHICLE_PREV_SEAT                        = 0x4C04, // 4.3.4 15595
+    CMSG_REQUEST_VEHICLE_NEXT_SEAT                        = 0x4434, // 4.3.4 15595
+    CMSG_REQUEST_VEHICLE_SWITCH_SEAT                      = 0x4C14, // 4.3.4 15595
     CMSG_PET_LEARN_TALENT                                 = 0x6725, // 4.3.4 15595
     CMSG_PET_UNLEARN_TALENTS                              = 0x147C,
     SMSG_SET_PHASE_SHIFT                                  = 0x70A0, // 4.3.4 15595
