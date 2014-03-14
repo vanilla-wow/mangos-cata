@@ -867,7 +867,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder *holder)
     m_playerLoading = false;
 
     // Handle Login-Achievements (should be handled after loading)
-    pCurrChar->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN, 1);
+    pCurrChar->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN, 1);
 
     delete holder;
 }
@@ -1166,7 +1166,7 @@ void WorldSession::HandleAlterAppearanceOpcode(WorldPacket& recv_data)
     }
 
     _player->ModifyMoney(-int64(Cost));                     // it isn't free
-    _player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER, Cost);
+    _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER, Cost);
 
     _player->SetByteValue(PLAYER_BYTES, 2, uint8(bs_hair->hair_id));
     _player->SetByteValue(PLAYER_BYTES, 3, uint8(Color));
@@ -1174,7 +1174,7 @@ void WorldSession::HandleAlterAppearanceOpcode(WorldPacket& recv_data)
     if (_player->getRace() == RACE_TAUREN)
         _player->SetByteValue(PLAYER_BYTES, 0, uint8(skinTone_id));
 
-    _player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP, 1);
+    _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP, 1);
 
     _player->SetStandState(0);                              // stand up
 }

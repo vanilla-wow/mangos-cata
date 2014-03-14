@@ -856,7 +856,7 @@ void Group::CountTheRoll(Rolls::iterator& rollI)
 
             if (player && player->GetSession())
             {
-                player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT, roll->itemid, maxresul);
+                player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT, roll->itemid, maxresul);
 
                 ItemPosCountVec dest;
                 LootItem* item = &(roll->getLoot()->items[roll->itemSlot]);
@@ -867,9 +867,9 @@ void Group::CountTheRoll(Rolls::iterator& rollI)
                     roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                     --roll->getLoot()->unlootedCount;
                     player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId);
-                    player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, roll->itemid, item->count);
-                    player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, roll->getLoot()->loot_type, item->count);
-                    player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, roll->itemid, item->count);
+                    player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, roll->itemid, item->count);
+                    player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, roll->getLoot()->loot_type, item->count);
+                    player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, roll->itemid, item->count);
                 }
                 else
                 {
@@ -908,7 +908,7 @@ void Group::CountTheRoll(Rolls::iterator& rollI)
 
             if (player && player->GetSession())
             {
-                player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT, roll->itemid, maxresul);
+                player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT, roll->itemid, maxresul);
 
                 LootItem* item = &(roll->getLoot()->items[roll->itemSlot]);
 
@@ -922,9 +922,9 @@ void Group::CountTheRoll(Rolls::iterator& rollI)
                         roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                         --roll->getLoot()->unlootedCount;
                         player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId);
-                        player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, roll->itemid, item->count);
-                        player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, roll->getLoot()->loot_type, item->count);
-                        player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, roll->itemid, item->count);
+                        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, roll->itemid, item->count);
+                        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, roll->getLoot()->loot_type, item->count);
+                        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, roll->itemid, item->count);
                     }
                     else
                     {

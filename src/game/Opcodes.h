@@ -1457,6 +1457,11 @@ enum Opcodes
     SMSG_VOID_STORAGE_TRANSFER_CHANGES                    = 0x51A6, // 4.3.4 15595
     SMSG_VOID_TRANSFER_RESULT                             = 0x1DA6, // 4.3.4 15595
     CMSG_TRANSMOGRIFY_ITEMS                               = 0x3B0E, // 4.3.4 15595
+    SMSG_GUILD_ACHIEVEMENT_DATA                           = 0x54B7, // 4.3.4 15595
+    SMSG_GUILD_ACHIEVEMENT_DELETED                        = 0x35A0, // 4.3.4 15595
+    SMSG_GUILD_ACHIEVEMENT_EARNED                         = 0x50B5, // 4.3.4 15595
+    SMSG_GUILD_CRITERIA_DATA                              = 0x54B7, // 4.3.4 15595
+    SMSG_GUILD_CRITERIA_DELETED                           = 0x55B1, // 4.3.4 15595
 };
 
 #define MAX_OPCODE_TABLE_SIZE 0xFFFF

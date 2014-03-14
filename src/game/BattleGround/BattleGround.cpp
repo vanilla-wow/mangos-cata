@@ -34,7 +34,8 @@
 #include "Util.h"
 #include "Formulas.h"
 #include "GridNotifiersImpl.h"
-#include "Chat.h"
+#include "Guild.h"
+#include "GuildMgr.h"
 
 namespace MaNGOS
 {
@@ -723,7 +724,8 @@ void BattleGround::EndBattleGround(Team winner)
         }
     }
 
-    for (BattleGroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+    bool guildAwarded = false;
+    for(BattleGroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
         Team team = itr->second.PlayerTeam;
 
@@ -769,20 +771,22 @@ void BattleGround::EndBattleGround(Team winner)
         // per player calculation
         if (isArena() && isRated() && winner_arena_team && loser_arena_team)
         {
+            plr->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA, uint32(winner_arena_team->GetType()));
+
             if (team == winner)
             {
                 // update achievement BEFORE personal rating update
                 ArenaTeamMember* member = winner_arena_team->GetMember(plr->GetObjectGuid());
                 if (member)
-                    plr->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, member->personal_rating);
+                    plr->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, member->personal_rating);
 
                 winner_arena_team->MemberWon(plr, loser_rating);
                 plr->ModifyCurrencyCount(CURRENCY_CONQUEST_ARENA_META, sWorld.getConfig(CONFIG_UINT32_CURRENCY_ARENA_CONQUEST_POINTS_REWARD));
 
                 if (member)
                 {
-                    plr->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_PERSONAL_RATING, GetArenaType(), member->personal_rating);
-                    plr->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING, GetArenaType(), winner_arena_team->GetStats().rating);
+                    plr->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_PERSONAL_RATING, GetArenaType(), member->personal_rating);
+                    plr->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING, GetArenaType(), winner_arena_team->GetStats().rating);
                 }
             }
             else
@@ -830,7 +834,18 @@ void BattleGround::EndBattleGround(Team winner)
             else // 50cp awarded for each non-rated battleground won
                 plr->ModifyCurrencyCount(CURRENCY_CONQUEST_BG_META, win_arena * GetCurrencyPrecision(CURRENCY_CONQUEST_BG_META));
 
-            plr->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
+            plr->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
+            if (!guildAwarded)
+            {
+                guildAwarded = true;
+                if (uint32 guildId = GetBgMap()->GetOwnerGuildId(plr->GetTeam()))
+                    if (Guild* guild = sGuildMgr.GetGuildById(guildId))
+                    {
+                        guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1, 0, NULL, 0, plr);
+                        if (isArena() && isRated() && winner_arena_team && loser_arena_team && winner_arena_team != loser_arena_team)
+                            guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, std::max<uint32>(winner_arena_team->GetRating(), 1), 0, NULL, 0, plr);
+                    }
+            }
         }
         else
         {
@@ -849,7 +864,7 @@ void BattleGround::EndBattleGround(Team winner)
         BattleGroundQueueTypeId bgQueueTypeId = BattleGroundMgr::BGQueueTypeId(GetTypeID(), GetArenaType());
         sBattleGroundMgr.BuildBattleGroundStatusPacket(&data, this, plr, plr->GetBattleGroundQueueIndex(bgQueueTypeId), STATUS_IN_PROGRESS, TIME_TO_AUTOREMOVE, GetStartTime(), GetArenaType());
         plr->GetSession()->SendPacket(&data);
-        plr->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND, 1);
+        plr->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND, 1);
     }
 
     if (isArena() && isRated() && winner_arena_team && loser_arena_team)
@@ -1672,6 +1687,9 @@ void BattleGround::HandleKillPlayer(Player* player, Player* killer)
     // add +1 deaths
     UpdatePlayerScore(player, SCORE_DEATHS, 1);
 
+    if (killer->GetAreaId() == player->GetAreaId())
+        killer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA, 1);
+
     // add +1 kills to group and +1 killing_blows to killer
     if (killer)
     {
@@ -1684,6 +1702,9 @@ void BattleGround::HandleKillPlayer(Player* player, Player* killer)
 
             if (!plr || plr == killer)
                 continue;
+
+            if (player->GetAreaId() == plr->GetAreaId())
+                plr->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA, 1);
 
             if (plr->GetTeam() == killer->GetTeam() && plr->IsAtGroupRewardDistance(player))
                 UpdatePlayerScore(plr, SCORE_HONORABLE_KILLS, 1);

@@ -1280,7 +1280,7 @@ void ChatHandler::ShowAchievementCriteriaListHelper(AchievementCriteriaEntry con
         ss << GetMangosString(LANG_COUNTER);
     else
     {
-        ss << " [" << AchievementMgr::GetCriteriaProgressMaxCounter(criEntry, achEntry) << "]";
+        ss << " [" << AchievementMgr<Player>::GetCriteriaProgressMaxCounter(criEntry, achEntry) << "]";
 
         if (target && target->GetAchievementMgr().IsCompletedCriteria(criEntry, achEntry))
             ss << GetMangosString(LANG_COMPLETE);
@@ -1351,7 +1351,7 @@ bool ChatHandler::HandleAchievementAddCommand(char* args)
         return false;
     }
 
-    AchievementMgr& mgr = target->GetAchievementMgr();
+    AchievementMgr<Player>& mgr = target->GetAchievementMgr();
 
     if (AchievementCriteriaEntryList const* criteriaList = sAchievementMgr.GetAchievementCriteriaByAchievement(achEntry->ID))
     {
@@ -1360,10 +1360,10 @@ bool ChatHandler::HandleAchievementAddCommand(char* args)
             if (mgr.IsCompletedCriteria(*itr, achEntry))
                 continue;
 
-            uint32 maxValue = AchievementMgr::GetCriteriaProgressMaxCounter(*itr, achEntry);
+            uint32 maxValue = AchievementMgr<Player>::GetCriteriaProgressMaxCounter(*itr, achEntry);
             if (maxValue == std::numeric_limits<uint32>::max())
                 maxValue = 1;                               // Exception for counter like achievements, set them only to 1
-            mgr.SetCriteriaProgress(*itr, achEntry, maxValue, AchievementMgr::PROGRESS_SET);
+            mgr.SetCriteriaProgress(*itr, achEntry, maxValue, target, AchievementMgr<Player>::PROGRESS_SET);
         }
     }
 
@@ -1393,11 +1393,11 @@ bool ChatHandler::HandleAchievementRemoveCommand(char* args)
         return false;
     }
 
-    AchievementMgr& mgr = target->GetAchievementMgr();
+    AchievementMgr<Player>& mgr = target->GetAchievementMgr();
 
     if (AchievementCriteriaEntryList const* criteriaList = sAchievementMgr.GetAchievementCriteriaByAchievement(achEntry->ID))
         for (AchievementCriteriaEntryList::const_iterator itr = criteriaList->begin(); itr != criteriaList->end(); ++itr)
-            mgr.SetCriteriaProgress(*itr, achEntry, 0, AchievementMgr::PROGRESS_SET);
+            mgr.SetCriteriaProgress(*itr, achEntry, 0, target, AchievementMgr<Player>::PROGRESS_SET);
 
     LocaleConstant loc = GetSessionDbcLocale();
     CompletedAchievementData const* completed = target ? target->GetAchievementMgr().GetCompleteData(achId) : NULL;
@@ -1437,11 +1437,11 @@ bool ChatHandler::HandleAchievementCriteriaAddCommand(char* args)
 
     LocaleConstant loc = GetSessionDbcLocale();
 
-    uint32 maxValue = AchievementMgr::GetCriteriaProgressMaxCounter(criEntry, achEntry);
+    uint32 maxValue = AchievementMgr<Player>::GetCriteriaProgressMaxCounter(criEntry, achEntry);
     if (maxValue == std::numeric_limits<uint32>::max())
         maxValue = 1;                                       // Exception for counter like achievements, set them only to 1
 
-    AchievementMgr& mgr = target->GetAchievementMgr();
+    AchievementMgr<Player>& mgr = target->GetAchievementMgr();
 
     // nothing do if completed
     if (mgr.IsCompletedCriteria(criEntry, achEntry))
@@ -1466,7 +1466,7 @@ bool ChatHandler::HandleAchievementCriteriaAddCommand(char* args)
         new_val = progress < max_int && max_int - progress > val ? progress + val : max_int;
     }
 
-    mgr.SetCriteriaProgress(criEntry, achEntry, new_val, AchievementMgr::PROGRESS_SET);
+    mgr.SetCriteriaProgress(criEntry, achEntry, new_val, target, AchievementMgr<Player>::PROGRESS_SET);
 
     ShowAchievementCriteriaListHelper(criEntry, achEntry, loc, target);
     return true;
@@ -1504,11 +1504,11 @@ bool ChatHandler::HandleAchievementCriteriaRemoveCommand(char* args)
 
     LocaleConstant loc = GetSessionDbcLocale();
 
-    uint32 maxValue = AchievementMgr::GetCriteriaProgressMaxCounter(criEntry, achEntry);
+    uint32 maxValue = AchievementMgr<Player>::GetCriteriaProgressMaxCounter(criEntry, achEntry);
     if (maxValue == std::numeric_limits<uint32>::max())
         maxValue = 1;                                       // Exception for counter like achievements, set them only to 1
 
-    AchievementMgr& mgr = target->GetAchievementMgr();
+    AchievementMgr<Player>& mgr = target->GetAchievementMgr();
 
     uint32 progress = mgr.GetCriteriaProgressCounter(criEntry);
 
@@ -1525,7 +1525,7 @@ bool ChatHandler::HandleAchievementCriteriaRemoveCommand(char* args)
 
     uint32 newval = change < progress ? progress - change : 0;
 
-    mgr.SetCriteriaProgress(criEntry, achEntry, newval, AchievementMgr::PROGRESS_SET);
+    mgr.SetCriteriaProgress(criEntry, achEntry, newval, target, AchievementMgr<Player>::PROGRESS_SET);
 
     ShowAchievementCriteriaListHelper(criEntry, achEntry, loc, target);
     return true;
@@ -5057,7 +5057,7 @@ bool ChatHandler::HandleResetAchievementsCommand(char* args)
     if (target)
         target->GetAchievementMgr().Reset();
     else
-        AchievementMgr::DeleteFromDB(target_guid);
+        AchievementMgr<Player>::DeleteFromDB(target_guid);
 
     return true;
 }
