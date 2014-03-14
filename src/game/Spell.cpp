@@ -3990,6 +3990,9 @@ void Spell::SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 ca
         case SPELL_FAILED_FISHING_TOO_LOW:
             data << uint32(0);                              // required fishing skill
             break;
+        case SPELL_FAILED_SILENCED:
+            data << uint32(0);                              // Unknown
+            break;
         default:
             break;
     }
@@ -4050,7 +4053,7 @@ void Spell::SendSpellStart()
         }
     }
 
-    if (castFlags & CAST_FLAG_AMMO)                         // projectile info
+    if (castFlags & CAST_FLAG_PROJECTILE)                   // projectile info
         WriteAmmoToPacket(&data);
 
     if (castFlags & CAST_FLAG_IMMUNITY)                     // cast immunity
@@ -4139,7 +4142,7 @@ void Spell::SendSpellGo()
         data << uint32(m_delayMoment);
     }
 
-    if (castFlags & CAST_FLAG_AMMO)                         // projectile info
+    if (castFlags & CAST_FLAG_PROJECTILE)                   // projectile info
         WriteAmmoToPacket(&data);
 
     if (castFlags & CAST_FLAG_VISUAL_CHAIN)                 // spell visual chain effect
