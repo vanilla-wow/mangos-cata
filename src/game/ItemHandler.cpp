@@ -26,6 +26,8 @@
 #include "Item.h"
 #include "UpdateData.h"
 #include "Chat.h"
+#include "Guild.h"
+#include "GuildMgr.h"
 
 void WorldSession::HandleSplitItemOpcode(WorldPacket& recv_data)
 {
@@ -580,6 +582,9 @@ void WorldSession::SendListInventory(ObjectGuid vendorguid)
 
     float discountMod = _player->GetReputationPriceDiscount(pCreature);
 
+    GuildRewards const& rewards = sGuildMgr.GetGuildRewards();
+    Guild* guild = sGuildMgr.GetGuildById(_player->GetGuildId());
+
     uint8 count = 0;
     ByteBuffer buffer;
     for (uint8 vendorslot = 0; vendorslot < numitems; ++vendorslot)
@@ -615,6 +620,21 @@ void WorldSession::SendListInventory(ObjectGuid vendorguid)
 
                     if (crItem->conditionId && !sObjectMgr.IsPlayerMeetToCondition(crItem->conditionId, _player, pCreature->GetMap(), pCreature, CONDITION_FROM_VENDOR))
                         continue;
+
+                    GuildRewards::const_iterator itr = rewards.find(crItem->item);
+                    if (itr != rewards.end())
+                    {
+                        if (!guild)
+                            continue;
+
+                        if (itr->second.AchievementId && !guild->GetAchievementMgr().HasAchievement(itr->second.AchievementId))
+                            continue;
+
+                        if ((itr->second.Racemask & _player->getRaceMask()) == 0)
+                            continue;
+
+                        //if (itr->second.Standing ...
+                    }
                 }
 
                 // possible item coverting for BoA case

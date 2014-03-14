@@ -812,6 +812,12 @@ void World::LoadConfigSettings(bool reload)
     setConfigMin(CONFIG_UINT32_GUILD_BANK_EVENT_LOG_COUNT, "Guild.BankEventLogRecordsCount", GUILD_BANK_MAX_LOGS, GUILD_BANK_MAX_LOGS);
     setConfig(CONGIG_UINT32_GUILD_UNDELETABLE_LEVEL, "Guild.UndeletableLevel", 4);
     setConfig(CONFIG_BOOL_GUILD_LEVELING_ENABLED, "Guild.LevelingEnabled", true);
+    setConfig(CONFIG_UINT32_GUILD_WEEKLY_REP_CAP, "Guild.WeeklyReputationCap", 4375);
+    setConfig(CONFIG_UINT32_GUILD_EXPERIENCE_UNCAPPED_LEVEL, "Guild.ExperienceUncappedLevel", 20);
+    setConfig(CONFIG_UINT32_GUILD_DAILY_XP_CAP, "Guild.DailyXPCap", 7807500);
+    setConfig(CONFIG_UINT32_GUILD_MAX_LEVEL, "Guild.MaxLevel", 25);
+    setConfig(CONFIG_UINT32_GUILD_SAVE_INTERVAL, "Guild.SaveInterval", 15);
+    setConfig(CONFIG_FLOAT_RATE_GUILD_XP_MODIFIER, "Guild.XPModifier", 0.25f);
 
     setConfig(CONFIG_UINT32_TIMERBAR_FATIGUE_GMLEVEL, "TimerBar.Fatigue.GMLevel", SEC_CONSOLE);
     setConfig(CONFIG_UINT32_TIMERBAR_FATIGUE_MAX,     "TimerBar.Fatigue.Max", 60);
@@ -1313,6 +1319,12 @@ void World::SetInitialWorldSettings()
     sLog.outString(">>> Auctions loaded");
     sLog.outString();
 
+    sLog.outString("Loading Guild Rewards...");
+    sGuildMgr.LoadGuildRewards();
+
+    sLog.outString("Loading Guild XP for level...");
+    sGuildMgr.LoadGuildXpForLevel();
+
     sLog.outString("Loading Guilds...");
     sGuildMgr.LoadGuilds();
 
@@ -1410,6 +1422,8 @@ void World::SetInitialWorldSettings()
     LoginDatabase.PExecute("INSERT INTO uptime (realmid, starttime, startstring, uptime) VALUES('%u', " UI64FMTD ", '%s', 0)",
                            realmID, uint64(m_startTime), isoDate);
 
+    m_timers[WUPDATE_GUILD_SAVE].SetInterval(getConfig(CONFIG_UINT32_GUILD_SAVE_INTERVAL) * MINUTE * IN_MILLISECONDS);
+						   
     m_timers[WUPDATE_WEATHERS].SetInterval(1 * IN_MILLISECONDS);
     m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE * IN_MILLISECONDS);
     m_timers[WUPDATE_UPTIME].SetInterval(getConfig(CONFIG_UINT32_UPTIME_UPDATE)*MINUTE * IN_MILLISECONDS);
@@ -1551,11 +1565,17 @@ void World::Update(uint32 diff)
 
     /// Handle daily quests reset time
     if (m_gameTime > m_NextDailyQuestReset)
+    {
         ResetDailyQuests();
+        sGuildMgr.ResetExperienceCaps();
+    }
 
     /// Handle weekly quests reset time
     if (m_gameTime > m_NextWeeklyQuestReset)
+    {
         ResetWeeklyQuests();
+        sGuildMgr.ResetReputationCaps();
+    }
 
     /// Handle monthly quests reset time
     if (m_gameTime > m_NextMonthlyQuestReset)
@@ -1655,6 +1675,12 @@ void World::Update(uint32 diff)
         uint32 nextGameEvent = sGameEventMgr.Update();
         m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);
         m_timers[WUPDATE_EVENTS].Reset();
+    }
+
+    if (m_timers[WUPDATE_GUILD_SAVE].Passed())
+    {
+        m_timers[WUPDATE_GUILD_SAVE].Reset();
+        sGuildMgr.SaveGuilds();
     }
 
     /// </ul>
