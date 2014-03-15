@@ -3180,17 +3180,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     else
                         target->m_AuraFlags &= ~UNIT_AURAFLAG_ALIVE_INVISIBLE;
                     return;
-                case 77487:                             // Shadow Orb
-                {
-                    if (apply)
-                    {
-                        if (GetStackAmount() == GetSpellProto()->GetStackAmount())
-                            target->CastSpell(target, 93683, true);     // Shadow Orb Stack Marker
-                    }
-                    else
-                        target->RemoveAurasDueToSpell(93683);
-                    break;
-                }
             }
             break;
         }
