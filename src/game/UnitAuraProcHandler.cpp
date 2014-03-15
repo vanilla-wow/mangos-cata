@@ -2664,15 +2664,6 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit* pVictim, uint32 damage, Aura
                     spell->AddTriggeredSpell(63685);
                 return SPELL_AURA_PROC_OK;
             }
-            // Feedback
-            if (dummySpell->SpellIconID == 4628)
-            {
-                if (GetTypeId() != TYPEID_PLAYER)
-                    return SPELL_AURA_PROC_FAILED;
-
-                ((Player*)this)->SendModifyCooldown(16166, triggerAmount);
-                return SPELL_AURA_PROC_OK;
-            }
             break;
         }
         case SPELLFAMILY_DEATHKNIGHT:
